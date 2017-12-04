@@ -1,0 +1,56 @@
+import java.net.*;
+import org.json.JSONObject;
+import java.io.*;
+
+
+public class Server {
+    
+    private static class method {
+        private String name;
+
+        public String getName() {
+        	return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+	public static void main(String[] args) {
+		
+		Socket s = null;
+		String line = "";
+		
+		
+		try {
+			
+			ServerSocket server = new ServerSocket(8888);
+			System.out.println("Wait");
+			
+			s = server.accept();//ожидание соединения
+			System.out.println("Connect");
+			
+			BufferedReader ps = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			PrintStream ss = new PrintStream(s.getOutputStream());
+			
+			line = ps.readLine();
+			System.out.println(line);
+		
+			
+			
+			
+			ss.println("inshala!");
+			
+			ss.flush();
+			
+			ps.close();
+			ss.close();
+			server.close();
+		
+		}
+		catch(Exception x) { 
+
+		}
+	}
+}

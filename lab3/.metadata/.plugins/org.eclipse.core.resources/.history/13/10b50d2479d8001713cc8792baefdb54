@@ -1,0 +1,79 @@
+import java.net.*;
+import com.thetransactioncompany.jsonrpc2.*;
+import java.util.*;
+import java.io.*;
+
+
+public class Server {
+	
+	/*public static class DateTimeHandler implements RequestHandler {
+		// Список поддерживаемых запросов
+		public String[] handledRequests() {
+			return new String[]{"getDate", "getTime"};
+		}
+		// Обработка запросов
+		public JSONRPC2Response process(JSONRPC2Request req, MessageContext ctx) {
+			if (req.getMethod().equals("getDate")) {
+				DateFormat df = DateFormat.getDateInstance();
+				String date = df.format(new Date());
+				return new JSONRPC2Response(date, req.getID());
+			}
+			else if (req.getMethod().equals("getTime")) {
+				DateFormat df = DateFormat.getTimeInstance();
+				String time = df.format(new Date());
+				return new JSONRPC2Response(time, req.getID());
+			}
+			else {
+				// Если метод не поддерживается
+				return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, req.getID());
+			}
+		}
+	}*/
+
+	public static void main(String[] args) {
+		
+		Socket s = null;
+		String line = "";
+		JSONRPC2Request req;
+		JSONRPC2Response res;
+		
+		String test = "{'method':'accounts.addUser','params':321,'id':123,'jsonrpc':'2.0'}";
+		
+		try{
+			res = JSONRPC2Response.parse(test);
+		}
+		catch(Exception x) { 
+			x.printStackTrace(); 
+		}
+		
+		/*try {
+			
+			ServerSocket server = new ServerSocket(8888);
+			System.out.println("Wait");
+			
+			s = server.accept();//ожидание соединения
+			System.out.println("Connect");
+			
+			BufferedReader ps = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			PrintStream ss = new PrintStream(s.getOutputStream());
+			
+			line = ps.readLine();
+			System.out.println(line);
+			
+			
+			
+			
+			ss.println("inshala!");
+			
+			ss.flush();
+			
+			ps.close();
+			ss.close();
+			server.close();
+		
+		}
+		catch(Exception x) { 
+			x.printStackTrace(); 
+		}*/
+	}
+}

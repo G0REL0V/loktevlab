@@ -1,0 +1,17 @@
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.json.rpc.client.HttpJsonRpcClientTransport;
+import org.json.rpc.client.JsonRpcInvoker;
+
+public class TestEchoClient {
+	@SuppressWarnings("unchecked")
+	public static void main(String[] args) throws MalformedURLException {
+		String url = "http://localhost:8888/jsonrpcappenginetest";
+		HttpJsonRpcClientTransport transport = new HttpJsonRpcClientTransport(new URL(url));
+		
+		JsonRpcInvoker invoker = new JsonRpcInvoker();
+		TestEchoServer server = invoker.get(transport, "echo", TestEchoServer.class);
+		
+		System.out.println(server.echo("Test message"));
+	}
+}

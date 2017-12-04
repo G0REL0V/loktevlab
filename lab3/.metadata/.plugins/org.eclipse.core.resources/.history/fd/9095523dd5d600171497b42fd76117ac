@@ -1,0 +1,22 @@
+import java.io.IOException;
+import javax.servlet.http.*;
+import org.json.rpc.server.JsonRpcExecutor;
+import org.json.rpc.server.JsonRpcServletTransport;
+@SuppressWarnings("serial")
+
+public class JsonRpcAppEngineTestServlet extends HttpServlet {
+	
+	private JsonRpcExecutor executor;
+	
+	@SuppressWarnings("unchecked")
+	public JsonRpcAppEngineTestServlet() {
+		executor = new JsonRpcExecutor();
+		TestEchoServer server = new TestEchoServerImpl();
+		executor.addHandler("echo", server, TestEchoServer.class);
+	}
+	
+	public void doPost(HttpServletRequest req, HttpServletResponse resp)
+			throws IOException {		
+		executor.execute(new JsonRpcServletTransport(req, resp));
+	}
+}

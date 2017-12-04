@@ -1,0 +1,106 @@
+import java.net.*;
+import com.thetransactioncompany.jsonrpc2.*;
+import com.alibaba.fastjson.JSON;
+import java.util.*;
+import java.io.*;
+
+
+public class Server {
+	
+	private static class Human {
+        private String message;
+        private Place place;
+
+        public String getMessage() {
+            return message;
+        }
+
+        public void setMessage(String message) {
+            this.message = message;
+        }
+
+        public Place getPlace() {
+            return place;
+        }
+
+        public void setPlace(Place place) {
+            this.place = place;
+        }
+
+        public void say() {
+            System.out.println();
+            System.out.println(getMessage() + " , " + getPlace().getName() + "!");
+        }
+    }
+
+    private static class Place {
+        private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+    }
+
+	public static void main(String[] args) {
+		
+		Socket s = null;
+		String line = "";
+		JSONRPC2Request req;
+		JSONRPC2Response res;
+		
+		//String jsonString = "{'params':{'amount':175.05,'recipient':'Penny Adams'},'jsonrpc':'2.0','id':'req-001','method':'SumMatrix'}";
+		
+		String jsonString = "{\"method\":\"makePayment\"," +
+                "\"params\":{\"recipient\":\"Penny Adams\",\"amount\":175.05}," +
+                "\"id\":\"0001\","+
+                "\"jsonrpc\":\"2.0\"}";
+
+//JSONRPC2Request req = null;
+
+try {
+    req = JSONRPC2Request.parse(jsonString);
+    //System.out.println(req);
+
+} catch (JSONRPC2ParseException e) {
+    // handle exception
+}
+		
+		
+		try {
+			
+			ServerSocket server = new ServerSocket(8888);
+			System.out.println("Wait");
+			
+			s = server.accept();//ожидание соединения
+			System.out.println("Connect");
+			
+			BufferedReader ps = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			PrintStream ss = new PrintStream(s.getOutputStream());
+			
+			line = ps.readLine();
+			System.out.println(line);
+			
+			// convert from json
+	        Human newHuman = JSON.parseObject(line, Human.class);
+	        newHuman.say(); // print "Hi , World!"
+			
+			
+			
+			ss.println("inshala!");
+			
+			ss.flush();
+			
+			ps.close();
+			ss.close();
+			server.close();
+		
+		}
+		catch(Exception x) { 
+			x.printStackTrace(); 
+		}
+	}
+}

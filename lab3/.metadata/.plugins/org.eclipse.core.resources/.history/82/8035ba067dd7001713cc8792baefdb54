@@ -1,0 +1,112 @@
+
+import java.net.*;
+import java.text.DateFormat;
+import java.util.Date;
+import com.thetransactioncompany.jsonrpc2.*;
+
+// We'll need the standard Map and HashMap classes too
+import java.util.*;
+import java.io.*;
+/*
+public class Server {
+	
+	public static class DateTimeHandler implements RequestHandler {
+		// Список поддерживаемых запросов
+		public String[] handledRequests() {
+			return new String[]{"getDate", "getTime"};
+		}
+		// Обработка запросов
+		public JSONRPC2Response process(JSONRPC2Request req, MessageContext ctx) {
+			if (req.getMethod().equals("getDate")) {
+				DateFormat df = DateFormat.getDateInstance();
+				String date = df.format(new Date());
+				return new JSONRPC2Response(date, req.getID());
+			}
+			else if (req.getMethod().equals("getTime")) {
+				DateFormat df = DateFormat.getTimeInstance();
+				String time = df.format(new Date());
+				return new JSONRPC2Response(time, req.getID());
+			}
+			else {
+				// Если метод не поддерживается
+				return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, req.getID());
+			}
+		}
+	}
+
+public static void main(String[] args) {
+
+Socket s = null;
+JSONRPC2Parser parse = new JSONRPC2Parser();
+Dispatcher dispatcher = new Dispatcher();
+String line = "";
+JSONRPC2Request req;
+JSONRPC2Response res;
+
+dispatcher.register(new DateTimeHandler());
+
+try { // отправка строки клиенту
+
+//создание объекта и назначение номера порта
+
+ServerSocket server = new ServerSocket(8888);
+System.out.println("Wait");
+
+s = server.accept();//ожидание соединения
+System.out.println("Connect");
+
+BufferedReader ps = new BufferedReader(new InputStreamReader(s.getInputStream()));
+
+// помещение строки "привет!" в буфер
+
+//ps.println("привет!");
+
+// отправка содержимого буфера клиенту и его очищение
+
+//ps.flush();
+
+String msg = ps.readLine();
+System.out.println(msg);
+
+req = parse.parseJSONRPC2Request(msg);
+System.out.println(req);
+//обрабатываем запрос
+res = dispatcher.process(req, null);
+line = res.toJSONObject().toJSONString();
+
+System.out.println(line);
+
+ps.close();
+server.close();
+
+}
+catch(Exception x) { 
+	x.printStackTrace(); 
+}
+}
+}*/
+
+public class Server {
+	public static void main(String[] arg) {
+		
+		String method = "makePayment";
+
+		// The required named parameters to pass
+		Map<String,Object> params = new HashMap<String,Object>();
+		params.put("recipient", "Penny Adams");
+		params.put("amount", 175.05);
+
+		// The mandatory request ID
+		String id = "req-001";
+
+		// Create a new JSON-RPC 2.0 request
+		JSONRPC2Request reqOut = new JSONRPC2Request(method, params, id);
+
+		// Serialise the request to a JSON-encoded string
+		String jsonString = reqOut.toString();
+		
+		System.out.println(reqOut);
+
+		// jsonString can now be dispatched to the server...
+   }
+}

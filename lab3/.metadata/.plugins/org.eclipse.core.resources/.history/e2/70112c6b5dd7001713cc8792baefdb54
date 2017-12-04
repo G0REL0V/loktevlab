@@ -1,0 +1,86 @@
+
+import java.net.*;
+import java.text.DateFormat;
+import java.util.Date;
+import com.thetransactioncompany.jsonrpc2.*;
+import com.thetransactioncompany.jsonrpc2.server.*;
+import java.io.*;
+
+public class Server {
+	public static class DateTimeHandler implements RequestHandler {
+		// Список поддерживаемых запросов
+		public String[] handledRequests() {
+			return new String[]{"getDate", "getTime"};
+		}
+		// Обработка запросов
+		public JSONRPC2Response process(JSONRPC2Request req, MessageContext ctx) {
+			if (req.getMethod().equals("getDate")) {
+				DateFormat df = DateFormat.getDateInstance();
+				String date = df.format(new Date());
+				return new JSONRPC2Response(date, req.getID());
+			}
+			else if (req.getMethod().equals("getTime")) {
+				DateFormat df = DateFormat.getTimeInstance();
+				String time = df.format(new Date());
+				return new JSONRPC2Response(time, req.getID());
+			}
+			else {
+				// Если метод не поддерживается
+				return new JSONRPC2Response(JSONRPC2Error.METHOD_NOT_FOUND, req.getID());
+			}
+		}
+	}
+	public static void main(String[] arg) {
+		
+		ServerSocket ss = null;
+		Socket socket = null;
+		InputStream sin;
+		OutputStream sout;
+		DataInputStream in;
+		DataOutputStream out;
+		JSONRPC2Parser parse = new JSONRPC2Parser();
+		Dispatcher dispatcher = new Dispatcher();
+		String line = "";
+		JSONRPC2Request req;
+		JSONRPC2Response res;
+
+		dispatcher.register(new DateTimeHandler());
+		try {
+			// создаем сокет сервера
+			ss = new ServerSocket(3333); 
+			System.out.println("Waiting for a client...");
+
+			while (true) {	
+// заставляем сервер ждать подключений и выводим  сообщение когда кто-то связался с сервером
+				socket = ss.accept(); 
+				
+// Берем входной и выходной потоки сокета, теперь можем получать и отсылать данные клиенту. 
+				sin = socket.getInputStream();
+				sout = socket.getOutputStream();
+				System.out.println(sin);
+				System.out.println(sout);
+
+// Конвертируем потоки в другой тип, чтоб легче обрабатывать текстовые сообщения.
+				in = new DataInputStream(sin);
+				out = new DataOutputStream(sout);
+				System.out.println(in);
+				System.out.println(out);
+				
+// Читаем запрос json по сети
+				line = in.readUTF();
+				System.out.println("Request: " + line);
+				req = parse.parseJSONRPC2Request(line);
+				System.out.println(req);
+//обрабатываем запрос
+				res = dispatcher.process(req, null);
+				line = res.toJSONObject().toJSONString();
+				System.out.println("Response: " + line);
+// Высылаем ответ
+				out.writeUTF(line);
+				out.flush();
+			}
+		} catch(Exception x) { 
+			x.printStackTrace(); 
+		}
+   }
+}

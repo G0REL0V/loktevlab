@@ -1,0 +1,69 @@
+import java.net.*;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONArray;
+import java.io.*;
+
+
+public class Server {
+    
+    private static String doJson(String str) {
+    	
+	    	
+
+	        //System.out.println(json.get("id"));
+	    	//JSONArray params = (JSONArray) json.get("params");
+	    	//JSONArray ver = (JSONArray) json.get("jsonrpc");
+	    	//JSONArray method = (JSONArray) json.get("method");
+	    	//JSONObject id = (JSONObject) json.get("id");
+	        
+	        // достаем из массива первый элемент
+	        //JSONObject weatherData = (JSONObject) weatherArray.get(0);
+	        //System.out.println(method);
+	    try{
+	    	JSONObject json = new JSONObject(str);
+            System.out.println(json.get("params"));
+    	}
+		catch(Exception x) { 
+			System.out.println(x);
+		}
+        return str;
+    }
+
+	public static void main(String[] args) {
+		
+		Socket s = null;
+		String line = "";
+		
+		
+		try {
+			
+			ServerSocket server = new ServerSocket(8888);
+			System.out.println("Wait");
+			
+			s = server.accept();//ожидание соединения
+			System.out.println("Connect");
+			
+			BufferedReader ps = new BufferedReader(new InputStreamReader(s.getInputStream()));
+			PrintStream ss = new PrintStream(s.getOutputStream());
+			
+			line = ps.readLine();
+			System.out.println(line);
+		
+			doJson(line);
+			
+			ss.println("inshala!");
+			
+			ss.flush();
+			
+			ps.close();
+			ss.close();
+			server.close();
+		
+		}
+		catch(Exception x) { 
+
+		}
+	}
+}

@@ -48,7 +48,7 @@ class ReflexAgent(Agent):
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Берем любое из лучших
 
-        "Добавьте что-то еще, если хотите"
+        #"Добавьте что-то еще, если хотите" Больше нечего
 
         return legalMoves[chosenIndex]
 
@@ -73,6 +73,8 @@ class ReflexAgent(Agent):
         newFood = successorGameState.getFood()
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
+
+        # фигня 
 
         def sum_food_proximity(cur_pos, food_positions, norm=False):
             food_distances = []
