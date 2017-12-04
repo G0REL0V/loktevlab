@@ -74,7 +74,7 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        # фигня 
+        # возвращает расстояние до еды
 
         def sum_food_proximity(cur_pos, food_positions, norm=False):
             food_distances = []
@@ -85,6 +85,7 @@ class ReflexAgent(Agent):
             else:
                 return sum(food_distances) if sum(food_distances) > 0 else 1
 
+        # тут мы получим расстояние до призрака +их кол-во
         score = successorGameState.getScore()
         def ghost_stuff(cur_pos, ghost_states, radius, scores):
             num_ghosts = 0
@@ -94,6 +95,7 @@ class ReflexAgent(Agent):
                     num_ghosts += 1
             return scores
 
+        # считаем расстояние от текущей еды до следующей с учетом расстояния до призраков
         def food_stuff(cur_pos, food_pos, cur_score):
             new_food = sum_food_proximity(cur_pos, food_pos)
             cur_food = sum_food_proximity(currentGameState.getPacmanPosition(), currentGameState.getFood().asList())
@@ -112,6 +114,7 @@ class ReflexAgent(Agent):
                 cur_score -= 20
             return cur_score
 
+        # выбор минимальной дистанции
         def closest_dot(cur_pos, food_pos):
             food_distances = []
             for food in food_pos:
@@ -200,14 +203,12 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return state.getScore()
             next_ghost = ghost + 1
             if ghost == state.getNumAgents() - 1:
-                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
-                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
                 next_ghost = PACMAN
             actions = state.getLegalActions(ghost)
             best_score = float("inf")
             score = best_score
             for action in actions:
-                if next_ghost == PACMAN: # We are on the last ghost and it will be Pacman's turn next.
+                if next_ghost == PACMAN:
                     if depth == self.depth - 1:
                         score = self.evaluationFunction(state.generateSuccessor(ghost, action))
                     else:
@@ -229,6 +230,7 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Возвращает действие minimax, используя self.depth и self.evaluationFunction
         """
         PACMAN = 0
+        # тоже самое, что и выше, только добавили отсечение
         def max_agent(state, depth, alpha, beta):
             if state.isWin() or state.isLose():
                 return state.getScore()
@@ -254,14 +256,12 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 return state.getScore()
             next_ghost = ghost + 1
             if ghost == state.getNumAgents() - 1:
-                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
-                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
                 next_ghost = PACMAN
             actions = state.getLegalActions(ghost)
             best_score = float("inf")
             score = best_score
             for action in actions:
-                if next_ghost == PACMAN: # We are on the last ghost and it will be Pacman's turn next.
+                if next_ghost == PACMAN:
                     if depth == self.depth - 1:
                         score = self.evaluationFunction(state.generateSuccessor(ghost, action))
                     else:
@@ -285,7 +285,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
           Возвращает действие expectimax, используя self.depth и self.evaluationFunction
 
-          Считайте, что все призраки выбирают случайные ходы из доступных им в данный момент.
+          Считайте, что все призраки выбирают случайные ходы из доступных им в данный момент. Сложна
         """
         PACMAN = 0
         def max_agent(state, depth):
@@ -310,15 +310,13 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
                 return state.getScore()
             next_ghost = ghost + 1
             if ghost == state.getNumAgents() - 1:
-                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
-                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
                 next_ghost = PACMAN
             actions = state.getLegalActions(ghost)
             best_score = float("inf")
             score = best_score
             for action in actions:
                 prob = 1.0/len(actions)
-                if next_ghost == PACMAN: # We are on the last ghost and it will be Pacman's turn next.
+                if next_ghost == PACMAN:
                     if depth == self.depth - 1:
                         score = self.evaluationFunction(state.generateSuccessor(ghost, action))
                         score += prob * score
@@ -334,7 +332,7 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
 def betterEvaluationFunction(currentGameState):
     """
       Если хотите, напишите агента по своему собственному алгоритму, и опишите
-      логику его работы здесь.
+      логику его работы здесь. Из доп задания оригинала.
     """
     def closest_dot(cur_pos, food_pos):
         food_distances = []
@@ -375,7 +373,7 @@ def betterEvaluationFunction(currentGameState):
     score -= .35 * food_stuff(pacman_pos, food)
     return score
 
-# Аббревиатура
+# Аббревиатура Ниже еще два агента из оригинального задания по пакману. Добавил по приколу
 better = betterEvaluationFunction
 
 class ContestAgent(MultiAgentSearchAgent):
