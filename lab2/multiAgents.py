@@ -48,7 +48,7 @@ class ReflexAgent(Agent):
         bestIndices = [index for index in range(len(scores)) if scores[index] == bestScore]
         chosenIndex = random.choice(bestIndices) # Берем любое из лучших
 
-        #"Добавьте что-то еще, если хотите" Больше нечего
+        "Добавьте что-то еще, если хотите"
 
         return legalMoves[chosenIndex]
 
@@ -74,8 +74,6 @@ class ReflexAgent(Agent):
         newGhostStates = successorGameState.getGhostStates()
         newScaredTimes = [ghostState.scaredTimer for ghostState in newGhostStates]
 
-        # возвращает расстояние до еды
-
         def sum_food_proximity(cur_pos, food_positions, norm=False):
             food_distances = []
             for food in food_positions:
@@ -85,7 +83,6 @@ class ReflexAgent(Agent):
             else:
                 return sum(food_distances) if sum(food_distances) > 0 else 1
 
-        # тут мы получим расстояние до призрака +их кол-во
         score = successorGameState.getScore()
         def ghost_stuff(cur_pos, ghost_states, radius, scores):
             num_ghosts = 0
@@ -95,7 +92,6 @@ class ReflexAgent(Agent):
                     num_ghosts += 1
             return scores
 
-        # считаем расстояние от текущей еды до следующей с учетом расстояния до призраков
         def food_stuff(cur_pos, food_pos, cur_score):
             new_food = sum_food_proximity(cur_pos, food_pos)
             cur_food = sum_food_proximity(currentGameState.getPacmanPosition(), currentGameState.getFood().asList())
@@ -114,7 +110,6 @@ class ReflexAgent(Agent):
                 cur_score -= 20
             return cur_score
 
-        # выбор минимальной дистанции
         def closest_dot(cur_pos, food_pos):
             food_distances = []
             for food in food_pos:
@@ -203,12 +198,14 @@ class MinimaxAgent(MultiAgentSearchAgent):
                 return state.getScore()
             next_ghost = ghost + 1
             if ghost == state.getNumAgents() - 1:
+                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
+                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
                 next_ghost = PACMAN
             actions = state.getLegalActions(ghost)
             best_score = float("inf")
             score = best_score
             for action in actions:
-                if next_ghost == PACMAN:
+                if next_ghost == PACMAN: # We are on the last ghost and it will be Pacman's turn next.
                     if depth == self.depth - 1:
                         score = self.evaluationFunction(state.generateSuccessor(ghost, action))
                     else:
@@ -230,7 +227,6 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
           Возвращает действие minimax, используя self.depth и self.evaluationFunction
         """
         PACMAN = 0
-        # тоже самое, что и выше, только добавили отсечение
         def max_agent(state, depth, alpha, beta):
             if state.isWin() or state.isLose():
                 return state.getScore()
@@ -256,12 +252,14 @@ class AlphaBetaAgent(MultiAgentSearchAgent):
                 return state.getScore()
             next_ghost = ghost + 1
             if ghost == state.getNumAgents() - 1:
+                # Although I call this variable next_ghost, at this point we are referring to a pacman agent.
+                # I never changed the variable name and now I feel bad. That's why I am writing this guilty comment :(
                 next_ghost = PACMAN
             actions = state.getLegalActions(ghost)
             best_score = float("inf")
             score = best_score
             for action in actions:
-                if next_ghost == PACMAN:
+                if next_ghost == PACMAN: # We are on the last ghost and it will be Pacman's turn next.
                     if depth == self.depth - 1:
                         score = self.evaluationFunction(state.generateSuccessor(ghost, action))
                     else:
@@ -285,54 +283,50 @@ class ExpectimaxAgent(MultiAgentSearchAgent):
         """
           Возвращает действие expectimax, используя self.depth и self.evaluationFunction
 
-          Считайте, что все призраки выбирают случайные ходы из доступных им в данный момент. Сложна
+          Считайте, что все призраки выбирают случайные ходы из доступных им в данный момент.
         """
-        PACMAN = 0
-        def max_agent(state, depth):
-            if state.isWin() or state.isLose():
-                return state.getScore()
-            actions = state.getLegalActions(PACMAN)
-            best_score = float("-inf")
-            score = best_score
-            best_action = Directions.STOP
-            for action in actions:
-                score = min_agent(state.generateSuccessor(PACMAN, action), depth, 1)
-                if score > best_score:
-                    best_score = score
-                    best_action = action
-            if depth == 0:
-                return best_action
-            else:
-                return best_score
-
-        def min_agent(state, depth, ghost):
-            if state.isLose():
-                return state.getScore()
-            next_ghost = ghost + 1
-            if ghost == state.getNumAgents() - 1:
-                next_ghost = PACMAN
-            actions = state.getLegalActions(ghost)
-            best_score = float("inf")
-            score = best_score
-            for action in actions:
-                prob = 1.0/len(actions)
-                if next_ghost == PACMAN:
-                    if depth == self.depth - 1:
-                        score = self.evaluationFunction(state.generateSuccessor(ghost, action))
-                        score += prob * score
-                    else:
-                        score = max_agent(state.generateSuccessor(ghost, action), depth + 1)
-                        score += prob * score
+        def expectedvalue(gameState, agentindex, depth):
+            if gameState.isWin() or gameState.isLose() or depth == 0:
+                return self.evaluationFunction(gameState)
+            numghosts = gameState.getNumAgents() - 1
+            legalActions = gameState.getLegalActions(agentindex)
+            numactions = len(legalActions)
+            totalvalue = 0
+            for action in legalActions:
+                nextState = gameState.generateSuccessor(agentindex, action)
+                if (agentindex == numghosts):
+                    totalvalue += maxvalue(nextState, depth - 1)
                 else:
-                    score = min_agent(state.generateSuccessor(ghost, action), depth, next_ghost)
-                    score += prob * score
+                    totalvalue += expectedvalue(nextState, agentindex + 1, depth)
+            return totalvalue / numactions
+        def maxvalue(gameState, depth):
+            if gameState.isWin() or gameState.isLose() or depth == 0:
+                return self.evaluationFunction(gameState)
+            legalActions = gameState.getLegalActions(0)
+            bestAction = Directions.STOP
+            score = -(float("inf"))
+            for action in legalActions:
+                prevscore = score
+                nextState = gameState.generateSuccessor(0, action)
+                score = max(score, expectedvalue(nextState, 1, depth))
             return score
-        return max_agent(gameState, 0)
+        if gameState.isWin() or gameState.isLose():
+            return self.evaluationFunction(gameState)
+        legalActions = gameState.getLegalActions(0)
+        bestaction = Directions.STOP
+        score = -(float("inf"))
+        for action in legalActions:
+            nextState = gameState.generateSuccessor(0, action)
+            prevscore = score
+            score = max(score, expectedvalue(nextState, 1, self.depth))
+            if score > prevscore:
+                bestaction = action
+        return bestaction
 
 def betterEvaluationFunction(currentGameState):
     """
       Если хотите, напишите агента по своему собственному алгоритму, и опишите
-      логику его работы здесь. Из доп задания оригинала.
+      логику его работы здесь.
     """
     def closest_dot(cur_pos, food_pos):
         food_distances = []
@@ -373,7 +367,7 @@ def betterEvaluationFunction(currentGameState):
     score -= .35 * food_stuff(pacman_pos, food)
     return score
 
-# Аббревиатура Ниже еще два агента из оригинального задания по пакману. Добавил по приколу
+# Аббревиатура
 better = betterEvaluationFunction
 
 class ContestAgent(MultiAgentSearchAgent):
